@@ -512,6 +512,21 @@ async function sbDelete(id){
   if(!r.ok) throw new Error(await r.text());
 }
 
+// ── Supabase helpers — settings ──
+async function sbGetSetting(key){
+  const r = await fetch(`${SUPA_URL}/rest/v1/settings?key=eq.${key}&select=value`, { headers });
+  if(!r.ok) throw new Error(await r.text());
+  const data = await r.json();
+  return data[0]?.value ?? null;
+}
+async function sbSetSetting(key, value){
+  const r = await fetch(`${SUPA_URL}/rest/v1/settings?key=eq.${key}`, {
+    method:'PATCH', headers:{...headers,'Prefer':'return=representation'},
+    body: JSON.stringify({ value })
+  });
+  if(!r.ok) throw new Error(await r.text());
+}
+
 // ── Upload image to Supabase Storage ──
 async function uploadImage(file){
   const ext  = file.name.split('.').pop();
@@ -540,29 +555,33 @@ async function sha256(s){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-const DEFAULT_HASH = 'ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270';
-let pwHash = localStorage.getItem('maison_pw') || DEFAULT_HASH;
+// pwHash loaded from Supabase on init
+let pwHash = 'ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270';
 
 // ══════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════
-let products    = [];
-let cart        = [];
-let adminPhone  = localStorage.getItem('maison_phone') || '';
+let products     = [];
+let cart         = [];
+let adminPhone   = '';
 let activeFilter = 'all';
-let pendingFile  = null;   // raw File object for upload
-let pendingPreview = null; // base64 just for local preview
+let pendingFile  = null;
+let pendingPreview = null;
 
 // ══════════════════════════════════════════
-//  INIT — load products from Supabase
+//  INIT — load products + settings from DB
 // ══════════════════════════════════════════
 async function init(){
   showStoreLoading(true);
   try {
-    products = await sbSelect();
+    [products, pwHash, adminPhone] = await Promise.all([
+      sbSelect(),
+      sbGetSetting('admin_pw_hash').then(v => v || pwHash),
+      sbGetSetting('admin_phone').then(v => v || '')
+    ]);
   } catch(e){
     console.error('Supabase load error:', e);
-    toast('⚠ Could not load products from database','err');
+    toast('⚠ Could not load data from database','err');
     products = [];
   }
   showStoreLoading(false);
@@ -707,7 +726,7 @@ async function doLogin(){
     closeLogin();
     document.getElementById('storeView').classList.remove('active');
     document.getElementById('adminView').classList.add('active');
-    if(adminPhone) document.getElementById('aPhone').value = adminPhone;
+    document.getElementById('aPhone').value = adminPhone || '';
     await refreshAdminPanel();
   } else {
     document.getElementById('loginErr').textContent = 'Incorrect password. Please try again.';
@@ -723,7 +742,7 @@ function doLogout(){
 }
 
 // ══════════════════════════════════════════
-//  CHANGE PASSWORD (stored locally — hash only)
+//  CHANGE PASSWORD — saved to Supabase
 // ══════════════════════════════════════════
 async function changePw(){
   const cur = document.getElementById('pwCur').value;
@@ -733,10 +752,15 @@ async function changePw(){
   if(await sha256(cur) !== pwHash){ toast('⚠ Current password incorrect','err'); return; }
   if(nw.length < 8){ toast('⚠ Min 8 characters required','err'); return; }
   if(nw !== cf){ toast('⚠ Passwords do not match','err'); return; }
-  pwHash = await sha256(nw);
-  localStorage.setItem('maison_pw', pwHash);
-  ['pwCur','pwNew','pwCfm'].forEach(id=>document.getElementById(id).value='');
-  toast('✓ Password updated!','ok');
+  try {
+    const newHash = await sha256(nw);
+    await sbSetSetting('admin_pw_hash', newHash);
+    pwHash = newHash;
+    ['pwCur','pwNew','pwCfm'].forEach(id=>document.getElementById(id).value='');
+    toast('✓ Password updated!','ok');
+  } catch(e){
+    toast('⚠ Error saving password: ' + e.message,'err');
+  }
 }
 
 // ══════════════════════════════════════════
@@ -879,12 +903,16 @@ function clearForm(){
   document.getElementById('cancelBtn').style.display = 'none';
 }
 
-function savePhone(){
+async function savePhone(){
   const ph = document.getElementById('aPhone').value.trim();
   if(!ph){ toast('⚠ Enter a WhatsApp number','err'); return; }
-  adminPhone = ph;
-  localStorage.setItem('maison_phone', ph);
-  toast('✓ WhatsApp number saved!','ok');
+  try {
+    await sbSetSetting('admin_phone', ph);
+    adminPhone = ph;
+    toast('✓ WhatsApp number saved!','ok');
+  } catch(e){
+    toast('⚠ Error saving number: ' + e.message,'err');
+  }
 }
 
 // ══════════════════════════════════════════
