@@ -274,7 +274,7 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
     <a onclick="scrollToProducts()">Accessories</a>
   </nav>
   <div class="hdr-right">
-    <button class="admin-nav-btn" onclick="openLogin()">⚙ Admin</button>
+    <!-- Admin button hidden — accessible via ?admin in URL -->
     <button class="cart-btn" onclick="toggleCart()">🛍 Bag <span class="cart-count" id="cartCount">0</span></button>
   </div>
 </header>
@@ -596,6 +596,13 @@ async function init(){
   const sp = localStorage.getItem('maison_cust_phone');
   if(sn) document.getElementById('custName').value = sn;
   if(sp) document.getElementById('custPhone').value = sp;
+
+  // Secret admin URL
+  if(window.location.search.includes('4dm1n1st4t3eur-du-s1t3')){
+    // Remove ?admin from URL bar so it's not visible
+    window.history.replaceState({}, '', window.location.pathname);
+    openLogin();
+  }
 }
 init();
 
