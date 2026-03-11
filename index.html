@@ -470,6 +470,40 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
 
 <script>
 // ══════════════════════════════════════════
+//  DEVTOOLS PROTECTION
+// ══════════════════════════════════════════
+(function(){
+  // Block right-click context menu
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+  document.addEventListener('keydown', e => {
+    if(
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && ['I','i','J','j','C','c'].includes(e.key)) ||
+      (e.ctrlKey && ['U','u'].includes(e.key)) ||
+      (e.ctrlKey && e.shiftKey && e.key === 'K')
+    ){
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  });
+
+  // Detect if devtools is open via window size difference
+  const threshold = 160;
+  setInterval(() => {
+    if(
+      window.outerWidth - window.innerWidth > threshold ||
+      window.outerHeight - window.innerHeight > threshold
+    ){
+      document.body.innerHTML = '';
+      window.location.reload();
+    }
+  }, 1000);
+})();
+
+// ══════════════════════════════════════════
 //  SUPABASE CONFIG
 // ══════════════════════════════════════════
 const SUPA_URL = 'https://wkhotbghioxsaavznyhe.supabase.co';
@@ -597,7 +631,7 @@ async function init(){
   if(sn) document.getElementById('custName').value = sn;
   if(sp) document.getElementById('custPhone').value = sp;
 
-  // Secret admin URL
+  // Secret admin URL: monsite.com?admin
   if(window.location.search.includes('4dm1n1st4t3eur-du-s1t3')){
     // Remove ?admin from URL bar so it's not visible
     window.history.replaceState({}, '', window.location.pathname);
