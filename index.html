@@ -463,7 +463,6 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
     </div>
     <div class="login-err" id="loginErr"></div>
     <button class="login-submit" onclick="doLogin()">Enter Admin Panel →</button>
-    <div class="login-hint">Default password: <strong>admin1234</strong></div>
   </div>
 </div>
 
@@ -562,7 +561,7 @@ let pwHash = 'ac9689e2272427085e35b9d3e3e8bed88cb3434828b43b86fc0596cad4c6e270';
 //  STATE
 // ══════════════════════════════════════════
 let products     = [];
-let cart         = [];
+let cart         = JSON.parse(localStorage.getItem('maison_cart') || '[]');
 let adminPhone   = '';
 let activeFilter = 'all';
 let pendingFile  = null;
@@ -585,7 +584,12 @@ async function init(){
     products = [];
   }
   showStoreLoading(false);
+  // Sync saved cart with current DB product data (update prices/names, remove deleted products)
+  cart = cart.filter(ci => products.some(p => p.id === ci.id))
+             .map(ci => { const p = products.find(x=>x.id===ci.id); return {...p, qty:ci.qty}; });
+  saveCart();
   renderProducts();
+  updateCartUI();
   updateHeroCount();
 }
 init();
@@ -637,18 +641,20 @@ function escHtml(s){ const d=document.createElement('div'); d.textContent=s; ret
 // ══════════════════════════════════════════
 //  CART
 // ══════════════════════════════════════════
+function saveCart(){ localStorage.setItem('maison_cart', JSON.stringify(cart)); }
+
 function addToCart(id){
   const p = products.find(x=>x.id===id); if(!p) return;
   const ex = cart.find(i=>i.id===id);
   if(ex) ex.qty++; else cart.push({...p, qty:1});
-  updateCartUI();
+  saveCart(); updateCartUI();
   toast(`✓ ${p.name} added to bag`, 'ok');
 }
-function removeFromCart(id){ cart = cart.filter(i=>i.id!==id); updateCartUI(); }
+function removeFromCart(id){ cart = cart.filter(i=>i.id!==id); saveCart(); updateCartUI(); }
 function changeQty(id, d){
   const i = cart.find(x=>x.id===id); if(!i) return;
   i.qty += d;
-  if(i.qty<=0) removeFromCart(id); else updateCartUI();
+  if(i.qty<=0) removeFromCart(id); else { saveCart(); updateCartUI(); }
 }
 function updateCartUI(){
   const total = cart.reduce((s,i)=>s+i.price*i.qty, 0);
@@ -700,7 +706,13 @@ function sendWhatsApp(){
   const lines = cart.map(i=>`• ${i.qty}x ${i.name} — $${(i.price*i.qty).toFixed(2)}`).join('\n');
   const msg = `🛍 *NEW ORDER — MAISON*\n\n*Customer:* ${name}\n*Phone:* ${phone}\n\n*Items:*\n${lines}\n\n*Total: $${total.toFixed(2)}*\n\nPlease confirm this order. Thank you!`;
   window.open(`https://wa.me/${adminPhone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');
-  toast('✓ WhatsApp opening…','ok');
+  // Clear cart after order
+  cart = [];
+  saveCart();
+  updateCartUI();
+  document.getElementById('custName').value = '';
+  document.getElementById('custPhone').value = '';
+  toast('✓ Order sent! Your bag has been cleared.', 'ok');
 }
 
 // ══════════════════════════════════════════
