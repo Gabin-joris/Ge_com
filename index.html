@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  var stored = localStorage.getItem('maison_lang');
+  var sys = (navigator.language || navigator.userLanguage || '').toLowerCase();
+  document.documentElement.lang = stored || (sys.startsWith('fr') ? 'fr' : 'en');
+})();
+</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>MAISON — Fashion Store</title>
@@ -30,6 +37,12 @@ nav a:hover{color:var(--accent);}
 .cart-btn:hover .cart-count{background:var(--white);color:var(--accent);}
 .admin-nav-btn{background:transparent;border:1px solid rgba(0,0,0,.2);color:var(--charcoal);padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
 .admin-nav-btn:hover{background:var(--black);color:var(--white);border-color:var(--black);}
+.lang-switch{display:flex;align-items:center;gap:2px;}
+.lang-btn{background:none;border:none;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,0,0,.4);cursor:pointer;padding:6px 10px;transition:color .2s;}
+.lang-btn:hover{color:var(--charcoal);}
+.lang-btn.active{color:var(--accent);font-weight:600;}
+.lang-btn:not(.active):hover{color:var(--black);}
+.lang-sep{color:rgba(0,0,0,.2);font-size:12px;user-select:none;}
 
 /* HERO */
 .hero{margin-top:72px;height:calc(100vh - 72px);display:grid;grid-template-columns:1fr 1fr;overflow:hidden;}
@@ -268,44 +281,48 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
 <header>
   <div class="logo" onclick="scrollTop()">MAI<span>S</span>ON</div>
   <nav>
-    <a onclick="scrollToProducts()">New Arrivals</a>
-    <a onclick="scrollToProducts()">Women</a>
-    <a onclick="scrollToProducts()">Men</a>
-    <a onclick="scrollToProducts()">Accessories</a>
+    <a onclick="scrollToProducts()" data-i18n="nav_new_arrivals">New Arrivals</a>
+    <a onclick="scrollToProducts()" data-i18n="nav_women">Women</a>
+    <a onclick="scrollToProducts()" data-i18n="nav_men">Men</a>
+    <a onclick="scrollToProducts()" data-i18n="nav_accessories">Accessories</a>
   </nav>
   <div class="hdr-right">
-    <!-- Admin button hidden — accessible via ?admin in URL -->
-    <button class="cart-btn" onclick="toggleCart()">🛍 Bag <span class="cart-count" id="cartCount">0</span></button>
+    <div class="lang-switch">
+      <button type="button" class="lang-btn active" id="langFr" onclick="setLang('fr')" aria-label="Français">FR</button>
+      <span class="lang-sep">|</span>
+      <button type="button" class="lang-btn" id="langEn" onclick="setLang('en')" aria-label="English">EN</button>
+    </div>
+    <button class="cart-btn" onclick="toggleCart()">🛍 <span data-i18n="bag">Bag</span> <span class="cart-count" id="cartCount">0</span></button>
   </div>
 </header>
 
 <div class="hero">
   <div class="hero-left">
-    <div class="hero-tag">Spring / Summer 2025 Collection</div>
-    <h1 class="hero-title">Wear Your<br/><em>Story</em></h1>
-    <p class="hero-desc">Curated pieces that blend quiet luxury with effortless modernity. Crafted for those who know that style is never an accident.</p>
+    <div class="hero-tag" data-i18n="hero_tag">Spring / Summer 2025 Collection</div>
+    <h1 class="hero-title"><span data-i18n="hero_title_1">Wear Your</span><br/><em data-i18n="hero_title_2">Story</em></h1>
+    <p class="hero-desc" data-i18n="hero_desc">Curated pieces that blend quiet luxury with effortless modernity. Crafted for those who know that style is never an accident.</p>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="scrollToProducts()">Shop the Collection</button>
-      <button class="btn-ghost" onclick="scrollToProducts()">View Lookbook →</button>
+      <button class="btn-primary" onclick="scrollToProducts()" data-i18n="shop_collection">Shop the Collection</button>
+      <button class="btn-ghost" onclick="scrollToProducts()" data-i18n="view_lookbook">View Lookbook →</button>
     </div>
   </div>
   <div class="hero-right">
     <div class="hero-img-bg">👗</div>
-    <div class="hero-badge"><strong id="heroCount">0</strong><span>Curated Styles</span></div>
+    <div class="hero-badge"><strong id="heroCount">0</strong><span data-i18n="curated_styles">Curated Styles</span></div>
   </div>
 </div>
 
 <section id="products">
   <div class="section-header">
     <div>
-      <div class="section-label">New Arrivals</div>
-      <h2 class="section-title">The <em>Edit</em></h2>
+      <div class="section-label" data-i18n="section_new_arrivals">New Arrivals</div>
+      <h2 class="section-title"><span data-i18n="section_the_edit_prefix">The </span><em data-i18n="section_the_edit_em">Edit</em></h2>
     </div>
     <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterProducts('all',this)">All</button>
-      <button class="filter-btn" onclick="filterProducts('women',this)">Women</button>
-      <button class="filter-btn" onclick="filterProducts('men',this)">Men</button>
-      <button class="filter-btn" onclick="filterProducts('accessories',this)">Accessories</button>
+      <button class="filter-btn active" onclick="filterProducts('all',this)" data-i18n="filter_all">All</button>
+      <button class="filter-btn" onclick="filterProducts('women',this)" data-i18n="filter_women">Women</button>
+      <button class="filter-btn" onclick="filterProducts('men',this)" data-i18n="filter_men">Men</button>
+      <button class="filter-btn" onclick="filterProducts('accessories',this)" data-i18n="filter_accessories">Accessories</button>
     </div>
   </div>
   <div class="product-grid" id="productGrid"></div>
@@ -313,11 +330,11 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
 
 <section>
   <div class="banner">
-    <div><h2 class="banner-title">Style<br/><em>Delivered</em><br/>to You</h2></div>
+    <div><h2 class="banner-title"><span data-i18n="banner_style">Style</span><br/><em data-i18n="banner_delivered">Delivered</em><br/><span data-i18n="banner_to_you">to You</span></h2></div>
     <div class="banner-right">
-      <div class="feat"><div class="feat-icon">📦</div><div><div class="feat-title">Free Worldwide Shipping</div><div class="feat-desc">On all orders above $150. Fast, tracked delivery to your door.</div></div></div>
-      <div class="feat"><div class="feat-icon">↩️</div><div><div class="feat-title">30-Day Returns</div><div class="feat-desc">Not the right fit? Return hassle-free within 30 days.</div></div></div>
-      <div class="feat"><div class="feat-icon">💬</div><div><div class="feat-title">WhatsApp Order Alerts</div><div class="feat-desc">Every order goes directly to our team via WhatsApp for fast processing.</div></div></div>
+      <div class="feat"><div class="feat-icon">📦</div><div><div class="feat-title" data-i18n="feat_shipping">Free Worldwide Shipping</div><div class="feat-desc" data-i18n="feat_shipping_desc">On all orders above $150. Fast, tracked delivery to your door.</div></div></div>
+      <div class="feat"><div class="feat-icon">↩️</div><div><div class="feat-title" data-i18n="feat_returns">30-Day Returns</div><div class="feat-desc" data-i18n="feat_returns_desc">Not the right fit? Return hassle-free within 30 days.</div></div></div>
+      <div class="feat"><div class="feat-icon">💬</div><div><div class="feat-title" data-i18n="feat_whatsapp">WhatsApp Order Alerts</div><div class="feat-desc" data-i18n="feat_whatsapp_desc">Every order goes directly to our team via WhatsApp for fast processing.</div></div></div>
     </div>
   </div>
 </section>
@@ -325,31 +342,31 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
 <footer>
   <div>
     <div class="logo">MAI<span style="color:var(--sand)">S</span>ON</div>
-    <p>A curated fashion house for the modern wardrobe. Quality, style, and effortless elegance.</p>
+    <p data-i18n="footer_tagline">A curated fashion house for the modern wardrobe. Quality, style, and effortless elegance.</p>
   </div>
-  <div class="ftr-col"><h4>Shop</h4><a>New Arrivals</a><a>Women</a><a>Men</a><a>Accessories</a><a>Sale</a></div>
-  <div class="ftr-col"><h4>Help</h4><a>Size Guide</a><a>Shipping & Returns</a><a>Order Tracking</a><a>Contact Us</a></div>
+  <div class="ftr-col"><h4 data-i18n="footer_shop">Shop</h4><a data-i18n="nav_new_arrivals">New Arrivals</a><a data-i18n="nav_women">Women</a><a data-i18n="nav_men">Men</a><a data-i18n="nav_accessories">Accessories</a><a data-i18n="footer_sale">Sale</a></div>
+  <div class="ftr-col"><h4 data-i18n="footer_help">Help</h4><a data-i18n="footer_size_guide">Size Guide</a><a data-i18n="footer_shipping_returns">Shipping & Returns</a><a data-i18n="footer_tracking">Order Tracking</a><a data-i18n="footer_contact">Contact Us</a></div>
 </footer>
-<div class="ftr-btm">© 2025 MAISON. All rights reserved.</div>
+<div class="ftr-btm" data-i18n="footer_copyright">© 2025 MAISON. All rights reserved.</div>
 
 <!-- CART -->
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-panel" id="cartPanel">
   <div class="cart-hdr">
-    <h2>Your Bag <span id="cartHdrCount" style="font-size:14px;color:var(--accent);font-family:'DM Sans'"></span></h2>
+    <h2><span data-i18n="cart_title">Your Bag</span> <span id="cartHdrCount" style="font-size:14px;color:var(--accent);font-family:'DM Sans'"></span></h2>
     <button class="close-btn" onclick="toggleCart()">✕</button>
   </div>
   <div class="cart-items-wrap" id="cartItemsWrap">
-    <div class="cart-empty-state"><div class="cart-empty-icon">🛍</div><h3>Your bag is empty</h3><p>Add some pieces and they'll appear here.</p></div>
+    <div class="cart-empty-state"><div class="cart-empty-icon">🛍</div><h3 data-i18n="cart_empty">Your bag is empty</h3><p data-i18n="cart_empty_desc">Add some pieces and they'll appear here.</p></div>
   </div>
   <div class="cart-ftr" id="cartFtr" style="display:none">
-    <div class="cart-subtotal"><span>Total</span><strong id="cartTotal">$0</strong></div>
-    <div class="cart-note">Taxes & shipping calculated at checkout</div>
-    <div class="form-grp"><label>Your Name</label><input id="custName" type="text" placeholder="Jane Doe" oninput="saveCustField('maison_cust_name',this.value)"/></div>
-    <div class="form-grp"><label>Your WhatsApp / Phone</label><input id="custPhone" type="tel" placeholder="+1 234 567 8900" oninput="saveCustField('maison_cust_phone',this.value)"/></div>
+    <div class="cart-subtotal"><span data-i18n="cart_total">Total</span><strong id="cartTotal">$0</strong></div>
+    <div class="cart-note" data-i18n="cart_note">Taxes & shipping calculated at checkout</div>
+    <div class="form-grp"><label data-i18n="cart_name">Your Name</label><input id="custName" type="text" data-i18n-placeholder="placeholder_name" placeholder="Jane Doe" oninput="saveCustField('maison_cust_name',this.value)"/></div>
+    <div class="form-grp"><label data-i18n="cart_phone">Your WhatsApp / Phone</label><input id="custPhone" type="tel" placeholder="+1 234 567 8900" oninput="saveCustField('maison_cust_phone',this.value)"/></div>
     <button class="wa-btn" onclick="sendWhatsApp()">
       <svg class="wa-icon" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Order via WhatsApp
+      <span data-i18n="order_whatsapp">Order via WhatsApp</span>
     </button>
   </div>
 </div>
@@ -455,14 +472,14 @@ footer p{font-size:13px;line-height:1.7;max-width:280px;}
   <div class="login-box">
     <button class="login-close" onclick="closeLogin()">✕</button>
     <div class="login-brand">MAI<span>S</span>ON</div>
-    <h2>Admin Access</h2>
-    <p class="login-sub">Enter your secure password to access the administration panel.</p>
+    <h2 data-i18n="login_title">Admin Access</h2>
+    <p class="login-sub" data-i18n="login_sub">Enter your secure password to access the administration panel.</p>
     <div class="pw-wrap">
-      <input class="login-inp" id="loginPw" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <input class="login-inp" id="loginPw" type="password" data-i18n-placeholder="login_placeholder" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/>
       <button class="pw-eye" onclick="toggleEye('loginPw',this)">👁</button>
     </div>
     <div class="login-err" id="loginErr"></div>
-    <button class="login-submit" onclick="doLogin()">Enter Admin Panel →</button>
+    <button class="login-submit" onclick="doLogin()" data-i18n="login_submit">Enter Admin Panel →</button>
   </div>
 </div>
 
@@ -602,9 +619,191 @@ let pendingFile  = null;
 let pendingPreview = null;
 
 // ══════════════════════════════════════════
+//  I18N — FR/EN with system language detection
+// ══════════════════════════════════════════
+const translations = {
+  en: {
+    nav_new_arrivals: 'New Arrivals',
+    nav_women: 'Women',
+    nav_men: 'Men',
+    nav_accessories: 'Accessories',
+    bag: 'Bag',
+    hero_tag: 'Spring / Summer 2025 Collection',
+    hero_title_1: 'Wear Your',
+    hero_title_2: 'Story',
+    hero_desc: 'Curated pieces that blend quiet luxury with effortless modernity. Crafted for those who know that style is never an accident.',
+    shop_collection: 'Shop the Collection',
+    view_lookbook: 'View Lookbook →',
+    curated_styles: 'Curated Styles',
+    section_new_arrivals: 'New Arrivals',
+    section_the_edit_prefix: 'The ',
+    section_the_edit_em: 'Edit',
+    filter_all: 'All',
+    filter_women: 'Women',
+    filter_men: 'Men',
+    filter_accessories: 'Accessories',
+    no_products: 'No products yet',
+    no_products_desc: "The admin hasn't added products in this category yet.",
+    add_to_bag: 'Add to Bag',
+    banner_style: 'Style',
+    banner_delivered: 'Delivered',
+    banner_to_you: 'to You',
+    feat_shipping: 'Free Worldwide Shipping',
+    feat_shipping_desc: 'On all orders above $150. Fast, tracked delivery to your door.',
+    feat_returns: '30-Day Returns',
+    feat_returns_desc: 'Not the right fit? Return hassle-free within 30 days.',
+    feat_whatsapp: 'WhatsApp Order Alerts',
+    feat_whatsapp_desc: 'Every order goes directly to our team via WhatsApp for fast processing.',
+    footer_tagline: 'A curated fashion house for the modern wardrobe. Quality, style, and effortless elegance.',
+    footer_shop: 'Shop',
+    footer_help: 'Help',
+    footer_sale: 'Sale',
+    footer_size_guide: 'Size Guide',
+    footer_shipping_returns: 'Shipping & Returns',
+    footer_tracking: 'Order Tracking',
+    footer_contact: 'Contact Us',
+    footer_copyright: '© 2025 MAISON. All rights reserved.',
+    cart_title: 'Your Bag',
+    cart_empty: 'Your bag is empty',
+    cart_empty_desc: "Add some pieces and they'll appear here.",
+    cart_total: 'Total',
+    cart_note: 'Taxes & shipping calculated at checkout',
+    cart_name: 'Your Name',
+    cart_phone: 'Your WhatsApp / Phone',
+    placeholder_name: 'Jane Doe',
+    order_whatsapp: 'Order via WhatsApp',
+    remove: 'Remove',
+    login_title: 'Admin Access',
+    login_sub: 'Enter your secure password to access the administration panel.',
+    login_placeholder: 'Password',
+    login_submit: 'Enter Admin Panel →',
+    loading_products: 'Loading products…',
+    err_load_data: 'Could not load data from database',
+    added_to_bag: 'added to bag',
+    err_name_phone: 'Please enter your name and phone',
+    err_bag_empty: 'Your bag is empty',
+    err_whatsapp_config: 'Admin WhatsApp not configured',
+    order_sent: 'Order sent! Your bag has been cleared.',
+    err_enter_password: 'Please enter a password.',
+    err_wrong_password: 'Incorrect password. Please try again.',
+    logged_out: 'Logged out',
+    items: 'item',
+    items_plural: 'items'
+  },
+  fr: {
+    nav_new_arrivals: 'Nouveautés',
+    nav_women: 'Femme',
+    nav_men: 'Homme',
+    nav_accessories: 'Accessoires',
+    bag: 'Sac',
+    hero_tag: 'Collection Printemps / Été 2025',
+    hero_title_1: 'Portez votre',
+    hero_title_2: 'Histoire',
+    hero_desc: 'Pièces sélectionnées qui allient luxe discret et modernité. Pour ceux qui savent que le style n\'est jamais un hasard.',
+    shop_collection: 'Voir la collection',
+    view_lookbook: 'Voir le lookbook →',
+    curated_styles: 'Styles sélectionnés',
+    section_new_arrivals: 'Nouveautés',
+    section_the_edit_prefix: 'L\'',
+    section_the_edit_em: 'Édit',
+    filter_all: 'Tous',
+    filter_women: 'Femme',
+    filter_men: 'Homme',
+    filter_accessories: 'Accessoires',
+    no_products: 'Pas encore de produits',
+    no_products_desc: "L'admin n'a pas encore ajouté de produits dans cette catégorie.",
+    add_to_bag: 'Ajouter au panier',
+    banner_style: 'Style',
+    banner_delivered: 'Livré',
+    banner_to_you: 'à vous',
+    feat_shipping: 'Livraison mondiale gratuite',
+    feat_shipping_desc: 'Pour toute commande de plus de 150 $. Livraison rapide et suivie.',
+    feat_returns: 'Retours sous 30 jours',
+    feat_returns_desc: 'Pas la bonne taille ? Retournez sans frais sous 30 jours.',
+    feat_whatsapp: 'Alertes commande WhatsApp',
+    feat_whatsapp_desc: 'Chaque commande est envoyée à notre équipe via WhatsApp pour un traitement rapide.',
+    footer_tagline: 'Une maison de mode pour la garde-robe moderne. Qualité, style et élégance.',
+    footer_shop: 'Boutique',
+    footer_help: 'Aide',
+    footer_sale: 'Soldes',
+    footer_size_guide: 'Guide des tailles',
+    footer_shipping_returns: 'Livraison et retours',
+    footer_tracking: 'Suivi de commande',
+    footer_contact: 'Nous contacter',
+    footer_copyright: '© 2025 MAISON. Tous droits réservés.',
+    cart_title: 'Votre sac',
+    cart_empty: 'Votre panier est vide',
+    cart_empty_desc: 'Ajoutez des articles et ils apparaîtront ici.',
+    cart_total: 'Total',
+    cart_note: 'Taxes et livraison calculées à la caisse',
+    cart_name: 'Votre nom',
+    cart_phone: 'Votre WhatsApp / Téléphone',
+    placeholder_name: 'Jean Dupont',
+    order_whatsapp: 'Commander via WhatsApp',
+    remove: 'Retirer',
+    login_title: 'Accès admin',
+    login_sub: 'Entrez votre mot de passe pour accéder au panneau d\'administration.',
+    login_placeholder: 'Mot de passe',
+    login_submit: 'Accéder à l\'admin →',
+    loading_products: 'Chargement des produits…',
+    err_load_data: 'Impossible de charger les données',
+    added_to_bag: 'ajouté au panier',
+    err_name_phone: 'Veuillez indiquer votre nom et téléphone',
+    err_bag_empty: 'Votre panier est vide',
+    err_whatsapp_config: 'WhatsApp admin non configuré',
+    order_sent: 'Commande envoyée ! Votre panier a été vidé.',
+    err_enter_password: 'Veuillez entrer un mot de passe.',
+    err_wrong_password: 'Mot de passe incorrect. Réessayez.',
+    logged_out: 'Déconnexion',
+    items: 'article',
+    items_plural: 'articles'
+  }
+};
+
+function getSystemLang(){
+  const lang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+  return (lang.startsWith('fr') ? 'fr' : 'en');
+}
+
+let currentLang = localStorage.getItem('maison_lang') || getSystemLang();
+
+function t(key){
+  const tr = translations[currentLang] || translations.en;
+  return tr[key] != null ? tr[key] : (translations.en[key] || key);
+}
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('maison_lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('langFr').classList.toggle('active', lang === 'fr');
+  document.getElementById('langEn').classList.toggle('active', lang === 'en');
+  applyTranslations();
+  renderProducts(activeFilter);
+  updateCartUI();
+}
+
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(key) el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if(key) el.placeholder = t(key);
+  });
+}
+
+// ══════════════════════════════════════════
 //  INIT — load products + settings from DB
 // ══════════════════════════════════════════
 async function init(){
+  document.documentElement.lang = currentLang;
+  const langFr = document.getElementById('langFr'), langEn = document.getElementById('langEn');
+  if(langFr) langFr.classList.toggle('active', currentLang === 'fr');
+  if(langEn) langEn.classList.toggle('active', currentLang === 'en');
+  applyTranslations();
+
   showStoreLoading(true);
   try {
     [products, pwHash, adminPhone] = await Promise.all([
@@ -614,7 +813,7 @@ async function init(){
     ]);
   } catch(e){
     console.error('Supabase load error:', e);
-    toast('⚠ Could not load data from database','err');
+    toast('⚠ ' + t('err_load_data'),'err');
     products = [];
   }
   showStoreLoading(false);
@@ -642,7 +841,7 @@ init();
 
 function showStoreLoading(on){
   const grid = document.getElementById('productGrid');
-  if(on) grid.innerHTML = `<div class="store-empty"><div class="store-empty-icon" style="animation:spin 1s linear infinite">⟳</div><p>Loading products…</p></div>`;
+  if(on) grid.innerHTML = `<div class="store-empty"><div class="store-empty-icon" style="animation:spin 1s linear infinite">⟳</div><p>${t('loading_products')}</p></div>`;
 }
 
 // ══════════════════════════════════════════
@@ -652,7 +851,7 @@ function renderProducts(filter='all'){
   const grid = document.getElementById('productGrid');
   const list = filter==='all' ? products : products.filter(p=>p.category===filter);
   if(!list.length){
-    grid.innerHTML = `<div class="store-empty"><div class="store-empty-icon">🛍</div><h3>No products yet</h3><p>The admin hasn't added products in this category yet.</p></div>`;
+    grid.innerHTML = `<div class="store-empty"><div class="store-empty-icon">🛍</div><h3>${t('no_products')}</h3><p>${t('no_products_desc')}</p></div>`;
     return;
   }
   grid.innerHTML = list.map(p=>`
@@ -660,7 +859,7 @@ function renderProducts(filter='all'){
       <div class="product-image">
         ${p.image ? `<img src="${p.image}" alt="${escHtml(p.name)}" loading="lazy"/>` : `<div class="product-emoji-fb">👗</div>`}
         ${p.tag ? `<div class="product-tag">${escHtml(p.tag)}</div>` : ''}
-        <div class="product-overlay"><button class="atc-btn" onclick="addToCart(${p.id})">Add to Bag</button></div>
+        <div class="product-overlay"><button class="atc-btn" onclick="addToCart(${p.id})">${t('add_to_bag')}</button></div>
       </div>
       <div class="product-info">
         <div class="product-category">${escHtml(p.category)}</div>
@@ -695,7 +894,7 @@ function addToCart(id){
   const ex = cart.find(i=>i.id===id);
   if(ex) ex.qty++; else cart.push({...p, qty:1});
   saveCart(); updateCartUI();
-  toast(`✓ ${p.name} added to bag`, 'ok');
+  toast(`✓ ${p.name} ${t('added_to_bag')}`, 'ok');
 }
 function removeFromCart(id){ cart = cart.filter(i=>i.id!==id); saveCart(); updateCartUI(); }
 function changeQty(id, d){
@@ -707,13 +906,13 @@ function updateCartUI(){
   const total = cart.reduce((s,i)=>s+i.price*i.qty, 0);
   const count = cart.reduce((s,i)=>s+i.qty, 0);
   document.getElementById('cartCount').textContent = count;
-  document.getElementById('cartHdrCount').textContent = count ? `(${count} item${count>1?'s':''})` : '';
+  document.getElementById('cartHdrCount').textContent = count ? `(${count} ${count>1 ? t('items_plural') : t('items')})` : '';
   document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
   const ftr  = document.getElementById('cartFtr');
   const wrap = document.getElementById('cartItemsWrap');
   if(!cart.length){
     ftr.style.display = 'none';
-    wrap.innerHTML = `<div class="cart-empty-state"><div class="cart-empty-icon">🛍</div><h3>Your bag is empty</h3><p>Add some pieces and they'll appear here.</p></div>`;
+    wrap.innerHTML = `<div class="cart-empty-state"><div class="cart-empty-icon">🛍</div><h3>${t('cart_empty')}</h3><p>${t('cart_empty_desc')}</p></div>`;
   } else {
     ftr.style.display = 'block';
     wrap.innerHTML = cart.map(i=>`
@@ -730,7 +929,7 @@ function updateCartUI(){
         </div>
         <div>
           <div class="ci-price">$${(i.price*i.qty).toFixed(2)}</div>
-          <button class="ci-remove" onclick="removeFromCart(${i.id})">Remove</button>
+          <button class="ci-remove" onclick="removeFromCart(${i.id})">${t('remove')}</button>
         </div>
       </div>`).join('');
   }
@@ -746,9 +945,9 @@ function toggleCart(){
 function sendWhatsApp(){
   const name  = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
-  if(!name||!phone){ toast('⚠ Please enter your name and phone','err'); return; }
-  if(!cart.length){ toast('⚠ Your bag is empty','err'); return; }
-  if(!adminPhone){ toast('⚠ Admin WhatsApp not configured','err'); return; }
+  if(!name||!phone){ toast('⚠ ' + t('err_name_phone'),'err'); return; }
+  if(!cart.length){ toast('⚠ ' + t('err_bag_empty'),'err'); return; }
+  if(!adminPhone){ toast('⚠ ' + t('err_whatsapp_config'),'err'); return; }
   const total = cart.reduce((s,i)=>s+i.price*i.qty, 0);
   const lines = cart.map(i=>`• ${i.qty}x ${i.name} — $${(i.price*i.qty).toFixed(2)}`).join('\n');
   const msg = `🛍 *NEW ORDER — MAISON*\n\n*Customer:* ${name}\n*Phone:* ${phone}\n\n*Items:*\n${lines}\n\n*Total: $${total.toFixed(2)}*\n\nPlease confirm this order. Thank you!`;
@@ -758,7 +957,7 @@ function sendWhatsApp(){
   saveCart();
   updateCartUI();
   // Name & phone kept in localStorage for next visit
-  toast('✓ Order sent! Your bag has been cleared.', 'ok');
+  toast('✓ ' + t('order_sent'), 'ok');
 }
 
 // ══════════════════════════════════════════
@@ -778,7 +977,7 @@ function toggleEye(id, btn){
 }
 async function doLogin(){
   const pw = document.getElementById('loginPw').value;
-  if(!pw){ document.getElementById('loginErr').textContent='Please enter a password.'; return; }
+  if(!pw){ document.getElementById('loginErr').textContent = t('err_enter_password'); return; }
   const h = await sha256(pw);
   if(h === pwHash){
     closeLogin();
@@ -787,7 +986,7 @@ async function doLogin(){
     document.getElementById('aPhone').value = adminPhone || '';
     await refreshAdminPanel();
   } else {
-    document.getElementById('loginErr').textContent = 'Incorrect password. Please try again.';
+    document.getElementById('loginErr').textContent = t('err_wrong_password');
     document.getElementById('loginPw').value = '';
     document.getElementById('loginPw').focus();
   }
@@ -796,7 +995,7 @@ function doLogout(){
   document.getElementById('adminView').classList.remove('active');
   document.getElementById('storeView').classList.add('active');
   clearForm();
-  toast('Logged out');
+  toast(t('logged_out'));
 }
 
 // ══════════════════════════════════════════
